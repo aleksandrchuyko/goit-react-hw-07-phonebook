@@ -1,4 +1,3 @@
-
 import { Box } from './Box';
 import { ContactForm } from './ContactForm/ContactForm';
 import { ContactList } from './ContactList/ContactList';
@@ -16,9 +15,8 @@ export const App = () => {
   const dispatch = useDispatch();
 
   const filter = useSelector(getFilter);
-  const { data: contacts, error, isLoading } = useGetAllContactsQuery('');
-  const [addContact, { isLoading: isCreating, isSuccess }] =
-    useAddContactMutation();
+  const { data: contacts, isLoading } = useGetAllContactsQuery('');
+  const [addContact] = useAddContactMutation();
 
   //get contacts list by filter
   const getFilteredContacts = () => {
