@@ -1,15 +1,18 @@
 import PropTypes from 'prop-types';
+import { useRemoveContactMutation } from 'redux/contactsApi';
 
-export const Contact = ({ id, name, number, onDeleteContact }) => {
+export const Contact = ({ id, name, phone, onDeleteContact }) => {
+  const [removeContact, { isLoading: isDeleting }] = useRemoveContactMutation();
   return (
     <div>
       <p>
-        {name}: {number}
+        {name}: {phone}
       </p>
       <button
         type="button"
+        disabled={isDeleting}
         onClick={() => {
-          onDeleteContact(id);
+          removeContact(id);
         }}
       >
         Delete
@@ -21,6 +24,5 @@ export const Contact = ({ id, name, number, onDeleteContact }) => {
 Contact.propTypes = {
   id: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
-  number: PropTypes.string.isRequired,
-  onDeleteContact: PropTypes.func.isRequired,
+  phone: PropTypes.string.isRequired,
 };

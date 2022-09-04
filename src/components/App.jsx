@@ -1,5 +1,3 @@
-import {useEffect } from 'react';
-import shortid from 'shortid';
 
 import { Box } from './Box';
 import { ContactForm } from './ContactForm/ContactForm';
@@ -7,45 +5,33 @@ import { ContactList } from './ContactList/ContactList';
 import { Filter } from './Filter/Filter';
 
 import { useSelector, useDispatch } from 'react-redux';
-import { addContact, getContacts, getFilter, removeContact, setFilter } from 'redux/phonebookSlice';
+import { getFilter, setFilter } from 'redux/phonebookSlice';
 
-import { initialContacts } from 'constants';
+import {
+  useAddContactMutation,
+  useGetAllContactsQuery,
+} from 'redux/contactsApi';
 
 export const App = () => {
-  
   const dispatch = useDispatch();
-  const contacts = useSelector(getContacts);
+
   const filter = useSelector(getFilter);
-  
-  //fill default contacts list if book is empty
-  useEffect(() => {
-    if (!contacts.length) {
-      initialContacts.map(contact => {
-        dispatch(addContact(contact));
-        return null;
-      });
-    }
-  }, [contacts, dispatch]);
+  const { data: contacts, error, isLoading } = useGetAllContactsQuery('');
+  const [addContact, { isLoading: isCreating, isSuccess }] =
+    useAddContactMutation();
 
   //get contacts list by filter
   const getFilteredContacts = () => {
-    return contacts.filter(contact => {
-      return contact.name.toLowerCase().includes(filter.toLowerCase());
-    });
+    if (filter.trim()) {
+      return contacts.filter(contact => {
+        return contact.name.toLowerCase().includes(filter.toLowerCase());
+      });
+    } else return contacts;
   };
 
   //redux actions
-  const handleAddContact = ({ name, number }) => {
-    const contact = {
-      id: shortid.generate(),
-      name,
-      number,
-    };
-    dispatch(addContact(contact));
-  };
-
-  const handleDeleteContact = contactId => {
-    dispatch(removeContact(contactId));
+  const handleAddContact = ({ name, phone }) => {
+    addContact({ name, phone });
   };
 
   const updateFilter = e => {
@@ -54,7 +40,7 @@ export const App = () => {
   //------------------
 
   const filteredContacts = getFilteredContacts();
-  
+
   return (
     <Box
       style={{
@@ -68,16 +54,17 @@ export const App = () => {
       }}
     >
       <h1>Phonebook</h1>
-      <ContactForm
-        contacts={contacts}
-        onSubmit={handleAddContact}
-      ></ContactForm>
-      <h2>Contacts</h2>
-      <Filter name={filter} onChange={updateFilter}></Filter>
-      <ContactList
-        contacts={filteredContacts}
-        onDeleteContact={handleDeleteContact}
-      ></ContactList>
+      {!isLoading && (
+        <>
+          <ContactForm
+            contacts={contacts}
+            onSubmit={handleAddContact}
+          ></ContactForm>
+          <h2>Contacts</h2>
+          <Filter name={filter} onChange={updateFilter}></Filter>
+          <ContactList contacts={filteredContacts} />
+        </>
+      )}
     </Box>
   );
 };
