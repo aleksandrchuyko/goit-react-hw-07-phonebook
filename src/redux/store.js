@@ -1,7 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { phonebookReducer } from './phonebookSlice';
 import {
-  persistStore,
+  //persistStore,
   FLUSH,
   REHYDRATE,
   PAUSE,
